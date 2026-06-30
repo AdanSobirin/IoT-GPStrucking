@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🌿 PalmTrack — Dashboard Monitoring Truk Sawit
 
 Dashboard real-time untuk monitoring posisi truk dan TPH di perkebunan sawit.
@@ -96,3 +97,11 @@ POST /api/sync
 | 🚛 Truk | ⚫ Abu-abu (`#6b7280`) | `status: "idle"` |
 | 📦 TPH  | 🟡 Amber (`#f59e0b`) | Semua TPH |
 | 🏭 Pabrik | 🟣 Ungu (`#7c3aed`) | name mengandung "pabrik/pks" |
+=======
+# IoT-GPStrucking
+>>>>>>> cc7f53cf57f5a2dc3f740b8c10ab1d02e243722c
+<<<<<<< HEAD
+(Ini adalah isi README.md versi lokal di komputermu)
+=======
+(Ini adalah isi README.md versi dari GitHub)
+>>>>>>> origin/main
