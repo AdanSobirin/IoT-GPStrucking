@@ -43,11 +43,16 @@ function DashboardLayout() {
     }
   }, []);
 
-  useEffect(() => {
-    loadData();
-    const interval = setInterval(loadData, POLLING_INTERVAL);
-    return () => clearInterval(interval);
-  }, [loadData]);
+// ─── AMAN DARI LAG: EDIT DI DALAM DASHBOARDLAYOUT ───
+useEffect(() => {
+
+  const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+  if (!token) return;
+
+  loadData();
+  const interval = setInterval(loadData, POLLING_INTERVAL);
+  return () => clearInterval(interval);
+}, [loadData]);
 
   const loadingTrucks = data.trucks ? data.trucks.filter((t) => t.status === "loading").length : 0;
   const idleTrucks = data.trucks ? data.trucks.filter((t) => t.status === "idle").length : 0;
