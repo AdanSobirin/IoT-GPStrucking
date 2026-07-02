@@ -40,8 +40,8 @@ export default function Login() {
       showConfirmButton: false
     });
 
-    sessionStorage.setItem('isLoggedIn', 'true');
-    sessionStorage.setItem('adminName', formData.username);
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('adminName', formData.username);
     navigate('/dashboard');
 
   } catch (error) {
