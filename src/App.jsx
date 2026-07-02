@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useOutletContext } from "react-router-dom";
 
 // Import Komponen Halaman
-import Login from "./components/Login"; 
+import Login from "./components/login"; 
 import MapComponent from "./components/MapComponent";
 import StatusBar from "./components/StatusBar";
 import Sidebar from "./components/Sidebar"; 
