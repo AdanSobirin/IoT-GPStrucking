@@ -3,8 +3,8 @@
 // Konfigurasi dan fungsi fetch ke backend FastAPI
 // ============================================================
 
+// Memastikan jika di VPS (production), tidak ada tabrakan double /api
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-
 /**
  * Mengambil data truk dan TPH dari backend FastAPI.
  */

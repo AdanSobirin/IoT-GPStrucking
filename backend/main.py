@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 import asyncpg # type: ignore
 import os
+import uvicorn
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -639,5 +640,9 @@ async def sync_tracking(payload: TrackingPayload):
             payload.vehicle_id, payload.lat, payload.lng, payload.status
         )
         return {"ok": True}
+    
     finally:
         await db_pool.release(conn)
+if __name__ == "__main__":
+    # Sesuaikan host dan port jika diperlukan
+    uvicorn.run(app, host="127.0.0.1", port=8000)

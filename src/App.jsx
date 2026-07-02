@@ -16,8 +16,7 @@ const POLLING_INTERVAL = 5000;
 
 // ─── PELINDUNG HALAMAN (PROTECTED ROUTE) ───
 const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = localStorage.getItem('isLoggedIn');
-  if (!isAuthenticated) {
+const isAuthenticated = localStorage.getItem('token') || localStorage.getItem('access_token');  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   return children;
