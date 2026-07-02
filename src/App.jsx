@@ -16,7 +16,12 @@ const POLLING_INTERVAL = 5000;
 
 // ─── PELINDUNG HALAMAN (PROTECTED ROUTE) ───
 const ProtectedRoute = ({ children }) => {
-const isAuthenticated = localStorage.getItem('token') || localStorage.getItem('access_token');  if (!isAuthenticated) {
+  const isAuthenticated =
+    localStorage.getItem('token') ||
+    localStorage.getItem('access_token') ||
+    localStorage.getItem('isLoggedIn') === 'true';
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -45,9 +50,12 @@ function DashboardLayout() {
 
 // ─── AMAN DARI LAG: EDIT DI DALAM DASHBOARDLAYOUT ───
 useEffect(() => {
+  const isAuthenticated =
+    localStorage.getItem('token') ||
+    localStorage.getItem('access_token') ||
+    localStorage.getItem('isLoggedIn') === 'true';
 
-  const token = localStorage.getItem('token') || localStorage.getItem('access_token');
-  if (!token) return;
+  if (!isAuthenticated) return;
 
   loadData();
   const interval = setInterval(loadData, POLLING_INTERVAL);

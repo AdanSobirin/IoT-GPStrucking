@@ -21,28 +21,31 @@ export default function Login() {
     setErrorMessage('');
     
     try {
-      // Panggil fungsi dari api.js
-      await loginAdmin({ 
+      const loginResponse = await loginAdmin({ 
         username: formData.username, 
         password: formData.password 
       });
 
-      // Jika berhasil
-     await Swal.fire({
-      icon: 'success',
-      title: 'Login Berhasil',
-      text: 'Selamat datang kembali, Admin!',
-      background: '#0f172a', // Warna gelap senada dengan tema
-      color: '#fff',
-      confirmButtonColor: '#10b981', // Emerald 500
-      timer: 2000,
-      timerProgressBar: true,
-      showConfirmButton: false
-    });
+      const authToken = loginResponse?.token || loginResponse?.access_token || `${formData.username}-${Date.now()}`;
 
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('adminName', formData.username);
-    navigate('/dashboard');
+      // Jika berhasil
+      await Swal.fire({
+        icon: 'success',
+        title: 'Login Berhasil',
+        text: 'Selamat datang kembali, Admin!',
+        background: '#0f172a',
+        color: '#fff',
+        confirmButtonColor: '#10b981',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
+      });
+
+      localStorage.setItem('token', authToken);
+      localStorage.setItem('access_token', authToken);
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('adminName', loginResponse?.full_name || formData.username);
+      navigate('/dashboard');
 
   } catch (error) {
     // ─── TAMBAHKAN POPUP ERROR DI SINI (Opsional tapi disarankan) ───

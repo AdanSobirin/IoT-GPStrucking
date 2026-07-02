@@ -11,7 +11,7 @@ export default function StatusBar({ lastUpdated, isLoading, error }) {
   const menuRef = useRef(null);
 
   // Ambil data admin dari localStorage
-  const adminName = sessionStorage.getItem('adminName') || 'Admin';
+  const adminName = localStorage.getItem('adminName') || 'Admin';
 
   // Menutup menu jika klik di luar area profil
   useEffect(() => {
@@ -37,8 +37,10 @@ export default function StatusBar({ lastUpdated, isLoading, error }) {
       confirmButtonText: 'Ya, Logout'
     }).then((result) => {
       if (result.isConfirmed) {
-        sessionStorage.removeItem('isLoggedIn');
-        sessionStorage.removeItem('adminName');
+        localStorage.removeItem('token');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('adminName');
         navigate('/login');
       }
     });
