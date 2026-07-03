@@ -205,7 +205,7 @@ export default function IoTDeviceManagement() {
   useEffect(() => {
     const fetchFleets = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/vehicles", {
+        const res = await axios.get("/api/vehicles", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
           }
@@ -240,7 +240,7 @@ export default function IoTDeviceManagement() {
   const fetchStatus = useCallback(async (vehicleId) => {
     if (!vehicleId) return;
     try {
-      const res = await axios.get(`http://localhost:8000/api/device-status/${vehicleId}`, {
+      const res = await axios.get(`/api/device-status${vehicleId}`, {
         timeout: 4000,
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
