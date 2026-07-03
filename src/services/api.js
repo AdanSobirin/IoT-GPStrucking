@@ -260,6 +260,12 @@ export async function handleLogout() {
   return response.json();
 }
 
+export async function fetchDeviceStatus(vehicleId) {
+  const response = await fetch(`${API_BASE_URL}/api/device-status/${vehicleId}`);
+  if (!response.ok) throw new Error("Gagal mengambil status perangkat");
+  return response.json();
+}
+
 /**
  * DATA MOCK — untuk development/testing tanpa backend.
  */

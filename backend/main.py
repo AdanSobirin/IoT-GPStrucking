@@ -4,7 +4,7 @@
 # Hubungkan ke PostgreSQL/PostGIS Anda
 # ============================================================
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -12,6 +12,7 @@ import asyncpg # type: ignore
 import os
 import uvicorn
 from passlib.context import CryptContext
+from datetime import datetime
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 app = FastAPI(title="PalmTrack API", version="1.0.0")
@@ -150,6 +151,17 @@ class AdminCreate(BaseModel):
     username: str
     password: str
     full_name: str
+
+# Model Pydantic khusus untuk skema status komponen IoT
+class DeviceStatusResponse(BaseModel):
+    vehicle_id: int
+    status_esp32: bool
+    status_gps: bool
+    status_gsm: bool
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
 
 # ── Endpoint Utama ──────────────────────────────────────────
 @app.get("/api/dashboard", response_model=DashboardResponse)
@@ -615,6 +627,89 @@ async def login(credentials: dict):
             return {"status": "success", "full_name": user['full_name'], "message": "Login berhasil"}
         else:
             raise HTTPException(status_code=401, detail="Username atau password salah")
+        
+# ─── 1. ENDPOINT UNTUK LIST TRUK DI HALAMAN IOT (MENGIKUTI TABEL VEHICLES MASTER) ───
+@app.get("/api/vehicles")
+async def get_all_vehicles():
+    if not db_pool: 
+        raise HTTPException(status_code=500, detail="Database pool tidak aktif")
+        
+    async with db_pool.acquire() as conn:
+        try:
+            # Mengambil truk yang aktif langsung dari master tabel 'vehicles'
+            rows = await conn.fetch("""
+                SELECT 
+                    id, 
+                    'Truck ' || id as label, 
+                    plate_number as plate 
+                FROM vehicles 
+                WHERE is_active = true
+                ORDER BY plate_number ASC
+            """)
+            
+            if not rows:
+                return [
+                    {"id": 1, "label": "Truck 01", "plate": "BM 8821 PO"},
+                    {"id": 2, "label": "Truck 02", "plate": "BM 4410 PO"},
+                ]
+                
+            return [
+                {
+                    "id": row["id"],
+                    "label": row["label"],
+                    "plate": row["plate"]
+                } for row in rows
+            ]
+        except Exception as e:
+            print(f"Error pada endpoint vehicles: {e}")
+            # Fallback agar frontend tidak crash saat database kosong/error
+            return [
+                {"id": 1, "label": "Truck 01", "plate": "BM 8821 PO"},
+                {"id": 2, "label": "Truck 02", "plate": "BM 4410 PO"},
+            ]
+
+
+# ─── 2. ENDPOINT MONITORING STATUS HARDWARE IOT (SINKRON DENGAN DATA DARI ARDUINO) ───
+@app.get("/api/device-status/{vehicle_id}", response_model=DeviceStatusResponse)
+async def get_device_status(vehicle_id: int):
+    if not db_pool: 
+        raise HTTPException(status_code=500, detail="Database pool tidak aktif")
+        
+    async with db_pool.acquire() as conn:
+        try:
+            # Query mengambil status hardware twin dari tabel live_tracking menggunakan placeholder asyncpg ($1)
+            row = await conn.fetchrow("""
+                SELECT 
+                    vehicle_id,
+                    COALESCE(status_esp32, FALSE) as status_esp32,
+                    COALESCE(status_gps, FALSE) as status_gps,
+                    COALESCE(status_gsm, FALSE) as status_gsm,
+                    updated_at
+                FROM live_tracking
+                WHERE vehicle_id = $1
+            """, vehicle_id)
+            
+            # Jika data alat belum pernah masuk ke tabel live_tracking
+            if not row:
+                return {
+                    "vehicle_id": vehicle_id,
+                    "status_esp32": False,
+                    "status_gps": False,
+                    "status_gsm": False,
+                    "updated_at": datetime.now()
+                }
+                
+            return {
+                "vehicle_id": row["vehicle_id"],
+                "status_esp32": row["status_esp32"],
+                "status_gps": row["status_gps"],
+                "status_gsm": row["status_gsm"],
+                "updated_at": row["updated_at"]
+            }
+            
+        except Exception as e:
+            print(f"Error pada endpoint device-status: {e}")
+            raise HTTPException(status_code=500, detail="Gagal mengambil data status hardware.")
 
 # ── Endpoint Sync Cadangan ─────────────────────────────────
 class TrackingPayload(BaseModel):

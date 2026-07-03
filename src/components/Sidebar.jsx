@@ -4,7 +4,7 @@
 // ============================================================
 import React from 'react';
 import { NavLink } from "react-router-dom"; // Menggunakan NavLink untuk deteksi URL otomatis
-import { Settings, HelpCircle, LayoutDashboard, Users, Truck, ClipboardCheck, Zap } from "lucide-react";
+import { Settings, HelpCircle, LayoutDashboard, Users, Truck, ClipboardCheck, Zap, Cpu} from "lucide-react";
 
 export default function Sidebar() {
   // Path diarahkan langsung sesuai rute URL anak di app.jsx
@@ -14,6 +14,7 @@ export default function Sidebar() {
     { path: '/dashboard/fleets', label: 'Daftar Armada', icon: <Truck size={20} /> },
     { path: '/dashboard/approvals', label: 'Menu Approve', icon: <ClipboardCheck size={20} /> },
     { path: '/dashboard/locations', label: 'Manajemen Lokasi', icon: <Zap size={20} /> },
+    { path: '/dashboard/devices', label: 'Monitoring IoT', icon: <Cpu size={20} /> },
   ];
 
   return (
@@ -21,7 +22,7 @@ export default function Sidebar() {
       
       {/* ─── BRANDING HEADER ─── */}
       <div className="flex items-center gap-4 p-5 h-16 border-b border-gray-800 shrink-0">
-        <img src="/src/assets/icone_gpstracking.png" alt="Brand Logo" className="w-12 h-12 rounded-full" />
+        <img src="/assets/icone_gpstracking.png" alt="Brand Logo" className="w-12 h-12 rounded-full" />
         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 whitespace-nowrap overflow-hidden">
           <h1 className="font-bold text-sm text-emerald-400 tracking-widest">PALMTRACK</h1>
           <p className="text-[10px] text-gray-500">Enterprise Dashboard</p>

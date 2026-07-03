@@ -10,7 +10,8 @@ import DriverManagement from "./components/DriverManagement";
 import FleetList from "./components/FleetList";
 import ApprovalCenter from "./components/ApprovalCenter";
 import LocationManagement from "./components/LocationManagement";
-import { fetchDashboardData } from "./services/api";
+import IoTDeviceManagement from "./components/Iotdevicemanagement";
+import { fetchDashboardData } from "./services/api"; // Fungsi untuk mengambil data dashboard
 
 const POLLING_INTERVAL = 5000;
 
@@ -146,6 +147,7 @@ export default function App() {
           <Route path="fleets" element={<div className="p-6 h-full overflow-y-auto"><FleetList /></div>} />
           <Route path="approvals" element={<div className="p-6 h-full overflow-y-auto"><ApprovalCenter /></div>} />
           <Route path="locations" element={<div className="p-6 h-full overflow-y-auto"><LocationManagement /></div>} />
+          <Route path="devices" element={<div className="p-6 h-full overflow-y-auto"><IoTDeviceManagement /></div>} />
           
           {/* Jika user hanya mengetik /dashboard, lempar ke live-tracking */}
           <Route index element={<Navigate to="live-tracking" replace />} />
