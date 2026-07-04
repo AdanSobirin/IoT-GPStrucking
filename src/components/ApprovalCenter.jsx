@@ -252,7 +252,7 @@ export default function ApprovalCenter() {
               <div className="bg-slate-950 rounded-xl border border-slate-800 flex flex-col items-center justify-center p-2 min-h-[250px] relative overflow-hidden">
                 {selectedReq.photo ? (
                   <img 
-                    src={`${PHP_SERVER_URL}/${selectedReq.photo}`} 
+                    src={`${PHP_SERVER_URL}/assets/${selectedReq.photo}`} 
                     alt="Bukti Sawit" 
                     className="w-full h-full object-contain rounded-lg"
                     onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/300x400?text=Foto+Tidak+Ditemukan"; }}
