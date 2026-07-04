@@ -31,7 +31,7 @@ try {
     
     // Protokol dinamis untuk membuat URL foto absolut agar bisa dibaca langsung oleh Android (Glide/Picasso)
     $server_ip = $_SERVER['SERVER_NAME'] ?? 'localhost'; 
-    $base_url = "http://" . $server_ip . "/api/"; // Sesuaikan folder jika bukan di root xampp
+    $base_url = "https://kamangmakmur.online" . $server_ip . "/assets/"; // Sesuaikan folder jika bukan di root xampp
 
     // Modifikasi hasil data sebelum dikirim ke Android
     foreach ($results as &$row) {
