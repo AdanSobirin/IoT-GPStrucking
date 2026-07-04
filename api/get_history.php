@@ -38,7 +38,7 @@ try {
         // 1. Ubah path foto menjadi URL lengkap yang bisa di-klik / dimuat Android
         if (!empty($row['photo_path'])) {
             // Jika di DB tertulis "api/uploads/...", kita bersihkan agar tidak duplikat dengan base_url
-            $clean_path = str_replace('api/', '', $row['photo_path']);
+            $clean_path = str_replace('public/assets/uploads', '', $row['photo_path']);
             $row['photo_url'] = $base_url . $clean_path;
         } else {
             $row['photo_url'] = null;
