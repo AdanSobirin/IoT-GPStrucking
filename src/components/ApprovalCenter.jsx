@@ -6,7 +6,7 @@ import { fetchApprovalQueue, approveDelivery, fetchApprovalHistory } from '../se
 import { Package, MapPin, Clock, Hash, CheckCircle, XCircle, Image as ImageIcon, Zap, History, ListChecks } from 'lucide-react';
 import Swal from 'sweetalert2';
 
-const PHP_SERVER_URL = "http://localhost"; 
+const PHP_SERVER_URL = "https://kamangmakmur.online"; 
 
 export default function ApprovalCenter() {
   const [activeTab, setActiveTab] = useState('queue'); 
