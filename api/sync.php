@@ -83,13 +83,23 @@ try {
             if (!file_exists('uploads')) {
                 mkdir('uploads', 0777, true);
             }
-            $filename = "SAWIT_" . time() . ".jpg";
-            $target = 'uploads/' . $filename;
-            if (move_uploaded_file($_FILES['photo']['tmp_name'], $target)) {
-                $photo_path = "api/uploads/" . $filename;
-            } else {
-                throw new Exception("Gagal memindahkan file foto ke folder uploads.");
+            // Simpan ke path: assets/uploads (sesuai kebutuhan dashboard)
+            $uploadDir = __DIR__ . '/../assets/uploads';
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0775, true);
             }
+
+            $filename = "SAWIT_" . time() . ".jpg";
+            $target = $uploadDir . '/' . $filename;
+
+            if (move_uploaded_file($_FILES['photo']['tmp_name'], $target)) {
+                // Frontend akan membentuk URL: `${PHP_SERVER_URL}/${selectedReq.photo}`
+                // Jadi simpan path relatif dari root domain (kamangmakmur.online)
+                $photo_path = "assets/uploads/" . $filename;
+            } else {
+                throw new Exception("Gagal memindahkan file foto ke folder assets/uploads.");
+            }
+
         }
 
         // 1. Simpan data timbangan dari aplikasi supir (sync_status: 1 = Dikirim)
