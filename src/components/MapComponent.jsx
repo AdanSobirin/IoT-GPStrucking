@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap, ZoomControl, Polyline } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { createTruckIcon, createTphIcon, createFactoryIcon } from "../utils/mapIcons";
-import { approveDelivery } from "../services/api";
+
 import TruckSidebar from "./TruckSidebar"; 
 import { Truck, MapPin, Factory, Package, CheckCircle2, User, Activity } from "lucide-react";
 
@@ -45,6 +45,7 @@ function FlyToSelected({ selectedTruck }) {
 
 export default function MapComponent({ trucks, tph, selectedTruck, onSelectTruck, onApprovalSuccess }) {
   const [routeCoords, setRouteCoords] = useState([]);
+
 
   // ─── EFFECT: HITUNG RUTE SAAT TRUK DIPILIH ──────────────────
   useEffect(() => {
@@ -166,9 +167,14 @@ function TruckPopupContent({ truck, onApprovalSuccess }) {
         <p className="flex items-center gap-1.5"><Activity size={14} /> {truck.speed || 0} km/h</p>
       </div>
       {isLoading && (
-        <button onClick={handleApprove} className="flex items-center justify-center gap-2 w-full mt-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2 rounded-lg transition-colors">
-          <CheckCircle2 size={14} /> Approve di PKS
-        </button>
+          <button
+            type="button"
+            onClick={() => alert("Approve hanya tersedia di halaman ApprovalCenter.")}
+            className="flex items-center justify-center gap-2 w-full mt-3 bg-slate-700/60 hover:bg-slate-700 text-white text-xs font-bold py-2 rounded-lg transition-colors opacity-80"
+          >
+            <CheckCircle2 size={14} /> Approve di PKS (di halaman Approval)
+          </button>
+
       )}
     </div>
   );

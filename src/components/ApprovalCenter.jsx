@@ -46,8 +46,11 @@ export default function ApprovalCenter() {
   const handleApprove = async (transactionId, vehicleId) => {
     setIsProcessing(true);
     try {
-      await approveDelivery({transaction_id: transactionId, 
-        vehicle_id: vehicleId});
+      await approveDelivery({
+        transaction_id: Number(transactionId),
+        vehicle_id: Number(vehicleId),
+      });
+
       Swal.fire({
         icon: 'success',
         title: 'Berhasil',
@@ -73,7 +76,8 @@ export default function ApprovalCenter() {
   };
 
   return (
-    <div className="p-8 h-full overflow-y-auto bg-slate-950 text-slate-200 custom-scrollbar">
+    <div className="p-8 h-full overflow-y-auto bg-gray-50 text-slate-900 dark:bg-slate-950 dark:text-slate-200 custom-scrollbar">
+
       
       {/* ─── HEADER ─── */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
@@ -82,12 +86,14 @@ export default function ApprovalCenter() {
           <p className="text-slate-400 text-sm mt-1">Otorisasi bongkar muat dan riwayat Tandan Buah Segar (TBS).</p>
         </div>
 
-        <div className="flex bg-slate-900 border border-slate-800 rounded-xl p-1">
+      <div className="flex bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1">
+
           <button 
             onClick={() => setActiveTab('queue')}
             className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
-              activeTab === 'queue' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'
+              activeTab === 'queue' ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white shadow-md' : 'text-slate-600 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
             }`}
+
           >
             <ListChecks size={16} /> Antrean
             {activeTab === 'queue' && queue.length > 0 && (
@@ -99,8 +105,9 @@ export default function ApprovalCenter() {
           <button 
             onClick={() => setActiveTab('history')}
             className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
-              activeTab === 'history' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'
+              activeTab === 'history' ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white shadow-md' : 'text-slate-600 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
             }`}
+
           >
             <History size={16} /> Riwayat
           </button>
@@ -113,7 +120,8 @@ export default function ApprovalCenter() {
         
         /* ─── TAB: ANTREAN ─── */
         queue.length === 0 ? (
-          <div className="p-12 text-center border border-slate-800 border-dashed rounded-2xl bg-slate-900/30 mt-4">
+          <div className="p-12 text-center border border-slate-200 dark:border-slate-800 border-dashed rounded-2xl bg-white/60 dark:bg-slate-900/30 mt-4">
+
             <CheckCircle size={48} className="mx-auto text-emerald-500/50 mb-4" />
             <p className="text-slate-400 font-medium">Tidak ada antrean truk saat ini.<br/>Semua muatan telah diverifikasi.</p>
           </div>
@@ -123,10 +131,12 @@ export default function ApprovalCenter() {
               <div 
                 key={req.id} 
                 onClick={() => setSelectedReq(req)}
-                className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-emerald-500/50 hover:bg-slate-800/80 cursor-pointer transition-all group shadow-sm"
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-emerald-500/50 hover:bg-slate-50 dark:hover:bg-slate-800/80 cursor-pointer transition-all group shadow-sm"
+
               >
                 <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-center text-emerald-400 shadow-inner group-hover:scale-110 transition-transform">
+                  <div className="w-14 h-14 bg-emerald-500/10 dark:bg-slate-950 border border-emerald-500/20 dark:border-slate-800 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-inner group-hover:scale-110 transition-transform">
+
                     <Package size={28} />
                   </div>
                   <div>
@@ -139,7 +149,8 @@ export default function ApprovalCenter() {
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-6 text-center bg-slate-950 px-6 py-3 rounded-xl border border-slate-800/50">
+                <div className="flex gap-6 text-center bg-slate-100/70 dark:bg-slate-950 px-6 py-3 rounded-xl border border-slate-200/70 dark:border-slate-800/50">
+
                   <div>
                     <p className="text-[10px] text-slate-500 uppercase tracking-widest">Janjang</p>
                     <p className="text-lg font-bold text-slate-200">{req.janjang}</p>
@@ -157,8 +168,8 @@ export default function ApprovalCenter() {
       ) : (
 
         /* ─── TAB: RIWAYAT ─── */
-        <div className="bg-[#0f172a] border border-slate-800 rounded-2xl shadow-lg mt-4 overflow-hidden">
-          <div className="p-5 border-b border-slate-800 bg-slate-900/50">
+        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl shadow-lg mt-4 overflow-hidden">
+          <div className="p-5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50">
             <h3 className="text-base font-bold text-slate-100">Log Approval Muatan</h3>
           </div>
           <div className="overflow-x-auto p-2">
@@ -268,7 +279,7 @@ export default function ApprovalCenter() {
             </div>
 
             {/* ─── MODAL FOOTER ─── */}
-            <div className="p-5 border-t border-slate-800 bg-slate-950/50 flex justify-end gap-3 items-center">
+            <div className="p-5 border-t border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/50 flex justify-end gap-3 items-center">
               <button 
                 onClick={() => setSelectedReq(null)}
                 className="px-5 py-2.5 text-sm font-bold text-slate-300 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors"

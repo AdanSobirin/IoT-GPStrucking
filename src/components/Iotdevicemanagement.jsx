@@ -205,11 +205,12 @@ export default function IoTDeviceManagement() {
   useEffect(() => {
     const fetchFleets = async () => {
       try {
-        const res = await axios.get("/api/vehicles", {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/api/vehicles`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
           }
         });
+
         if (res.data && res.data.length > 0) {
           const formatted = res.data.map(v => ({
             id: v.id || v.vehicle_id,
@@ -240,7 +241,8 @@ export default function IoTDeviceManagement() {
   const fetchStatus = useCallback(async (vehicleId) => {
     if (!vehicleId) return;
     try {
-      const res = await axios.get(`/api/device-status${vehicleId}`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/api/device-status/${vehicleId}`, {
+
         timeout: 4000,
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
