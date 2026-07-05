@@ -28,13 +28,16 @@ export async function fetchDashboardData() {
  * Mengirimkan data approval timbangan buah ke Pabrik PKS
  * @param {number} vehicleId ID Kendaraan yang akan di-approve statusnya menjadi idle
  */
-export async function approveDelivery(vehicleId) {
+export async function approveDelivery(payload) {
   const response = await fetch(`${API_BASE_URL}/api/approve-delivery`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ vehicle_id: vehicleId }),
+    body: JSON.stringify({
+      transaction_id: payload?.transaction_id,
+      vehicle_id: payload?.vehicle_id,
+    }),
   });
 
   if (!response.ok) {
@@ -43,6 +46,7 @@ export async function approveDelivery(vehicleId) {
 
   return response.json();
 }
+
 // ─── ENDPOINT BARU UNTUK DASHBOARD MODERN ──────────────────────────
 
 /**
