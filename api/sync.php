@@ -84,7 +84,7 @@ try {
                 mkdir('uploads', 0777, true);
             }
             // Simpan ke path: assets/uploads (sesuai kebutuhan dashboard)
-            $uploadDir = __DIR__ . '/../assets/uploads';
+            $uploadDir = __DIR__ . '/../public/assets/uploads';
             if (!file_exists($uploadDir)) {
                 mkdir($uploadDir, 0775, true);
             }
@@ -95,7 +95,7 @@ try {
             if (move_uploaded_file($_FILES['photo']['tmp_name'], $target)) {
                 // Frontend akan membentuk URL: `${PHP_SERVER_URL}/${selectedReq.photo}`
                 // Jadi simpan path relatif dari root domain (kamangmakmur.online)
-                $photo_path = "assets/uploads/" . $filename;
+                $photo_path = "/assets/uploads/" . $filename;
             } else {
                 throw new Exception("Gagal memindahkan file foto ke folder assets/uploads.");
             }
