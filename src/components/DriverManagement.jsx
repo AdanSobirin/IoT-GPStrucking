@@ -35,7 +35,7 @@ export default function DriverManagement() {
           username: '', 
           password: '', 
           vehicle_id: '', 
-          status: 'true'
+          status: 'Standby'
         }); // Reset form jadi kosong
         setIsModalOpen(true);
       };
@@ -149,11 +149,23 @@ useEffect(() => {
       };
 useEffect(() => {
     async function loadDataAwal() {
-      await loadDrivers(); // Fungsi loadDrivers kamu yang sudah ada
-      
+      // Pastikan data supir sudah di-load agar kita bisa tahu kendaraan mana yang sudah dipakai
+      const dataForUsedIds = await fetchDriverHistory();
+      setDrivers(dataForUsedIds);
+      if (dataForUsedIds && dataForUsedIds.length > 0) {
+        setSelectedDriver(dataForUsedIds[0]);
+      }
+
       // Ambil data dropdown kendaraan
+      // Hanya tampilkan kendaraan yang belum memiliki supir (vehicle_id belum terisi di users)
       const vehicles = await fetchVehiclesDropdown();
-      setVehicleOptions(vehicles);
+      const usedVehicleIds = new Set((dataForUsedIds || []).map(d => d.vehicle_id).filter(Boolean));
+      const available = vehicles.filter(v => !usedVehicleIds.has(v.id));
+      setVehicleOptions(available);
+
+
+
+
     }
     loadDataAwal();
   }, []);

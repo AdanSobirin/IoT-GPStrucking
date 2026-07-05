@@ -239,7 +239,8 @@ async def approve_delivery(payload: ApprovalPayload):
                 result = await conn.execute(
                     """
                     UPDATE input_data
-                    SET sync_status = 1,
+                    -- Pastikan status setelah approval menjadi 2 (approved)
+                    SET sync_status = 2,
                         updated_at = NOW()
                     WHERE id = $1;
                     """,
