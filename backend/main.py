@@ -205,7 +205,7 @@ async def get_dashboard():
         )
 
         return DashboardResponse(
-            trucks=[TruckData(**dict(r)) for r in truck_rows],
+            trucks=[TruckData(**dict(r)) for r in truck_rows if r.get('lat') is not None and r.get('lng') is not None],
             tph=[TphData(**dict(r)) for r in tph_rows],
         )
 
