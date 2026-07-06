@@ -51,8 +51,8 @@ async def shutdown_db_pool():
 class TruckData(BaseModel):
     id: int
     plate: str
-    lat: float
-    lng: float
+    lat: Optional[float] = None
+    lng: Optional[float] = None
     status: str                  # "loading", "idle", dll.
     driver: Optional[str] = None
     speed: Optional[float] = None
