@@ -21,6 +21,10 @@ export default function DriverManagement() {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [vehicleOptions, setVehicleOptions] = useState([]);
 
+  // ─── VIEW DOCS: HARI INI ───
+  const [isDocsModalOpen, setIsDocsModalOpen] = useState(false);
+
+
 // ─── STATE UNTUK MODAL FORM TAMBAH, edit  supir
       const [isModalOpen, setIsModalOpen] = useState(false);
       const [currentId, setCurrentId] = useState(null);
@@ -208,6 +212,20 @@ useEffect(() => {
   // Data inilah yang akan di-render di dalam tag <tbody>
   const currentRows = selectedDriver?.history?.slice(startIndex, endIndex) || [];
 
+  // (isDocsModalOpen sudah diinisialisasi di atas, mengikuti Rules of Hooks)
+
+  const todayLabel = new Date().toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+  const todayTrips = (selectedDriver?.history || []).filter((t) => {
+    if (!t?.date) return false;
+    // date di backend format: 'DD Mon YYYY, HH24:MI' (lihat main.py)
+    // Ambil bagian depan sampai tahun agar robust
+    return t.date.startsWith(todayLabel);
+  });
+
   return (
     <div className="p-6 h-full overflow-y-auto bg-slate-950 text-slate-200 custom-scrollbar">
       
@@ -222,9 +240,6 @@ useEffect(() => {
           </div>
         </div>
         <div className="flex gap-3">
-          <button className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-700 transition-colors flex items-center gap-2">
-            <MoreVertical size={16} /> Filter Views
-          </button>
           <button
             onClick={() => openAddModal()}           
            className="px-4 py-2 bg-emerald-500 text-slate-950 rounded-lg text-sm font-bold hover:bg-emerald-400 transition-colors flex items-center gap-2 shadow-lg shadow-emerald-500/20">
@@ -321,8 +336,8 @@ useEffect(() => {
                   <Truck size={20} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-200">Hino 500 FG 235 JP</p>
-                  <p className="text-xs text-slate-500">Plate: <span className="text-slate-300 font-mono">BM 9284 PT</span></p>
+                  <p className="text-sm font-bold text-slate-200">{selectedDriver?.brand_model || 'N/A'}</p>
+                  <p className="text-xs text-slate-500">Plate: <span className="text-slate-300 font-mono">{selectedDriver?.plate_number || 'N/A'}</span></p>
                 </div>
               </div>
               
@@ -330,7 +345,10 @@ useEffect(() => {
                 <button className="py-2.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold text-slate-300 transition-colors flex items-center justify-center gap-2">
                   <MessageSquare size={14} /> Message
                 </button>
-                <button className="py-2.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold text-slate-300 transition-colors flex items-center justify-center gap-2">
+                <button
+                  onClick={() => setIsDocsModalOpen(true)}
+                  className="py-2.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold text-slate-300 transition-colors flex items-center justify-center gap-2"
+                >
                   <FileText size={14} /> View Docs
                 </button>
               </div>
@@ -342,9 +360,10 @@ useEffect(() => {
             
             {/* Top Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-md">
+      <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-md">
   
   {/* Bagian Header Jarak yang kamu berikan */}
+
 
   <div className="flex justify-between items-start text-slate-400 mb-2">
     <span className="text-sm font-bold">Total Distance</span>
@@ -401,9 +420,21 @@ useEffect(() => {
               <div>
                 <div className="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
                   <h3 className="text-base font-bold text-slate-100">Riwayat Angkutan (Transport History)</h3>
-                  <div className="flex gap-3 text-slate-400">
-                    <button className="hover:text-emerald-400 transition-colors"><Download size={18} /></button>
-                    <button className="hover:text-emerald-400 transition-colors"><Printer size={18} /></button>
+                <div className="flex gap-3 text-slate-400">
+                    <button
+                      className="hover:text-emerald-400 transition-colors"
+                      title="Download"
+                      onClick={() => setIsDocsModalOpen(true)}
+                    >
+                      <Download size={18} />
+                    </button>
+                    <button
+                      className="hover:text-emerald-400 transition-colors"
+                      title="Print"
+                      onClick={() => setIsDocsModalOpen(true)}
+                    >
+                      <Printer size={18} />
+                    </button>
                   </div>
                 </div>
                 <div className="overflow-x-auto p-2">
@@ -533,6 +564,104 @@ useEffect(() => {
           })}
         </div>
       </div>
+      {isDocsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[#f8fafc] text-slate-900 border border-slate-200 rounded-2xl shadow-2xl w-full max-w-2xl p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-xl font-extrabold">Surat Dokumen Trip Hari Ini</h3>
+                <p className="text-xs text-slate-500 mt-1">Generated by Driver Management</p>
+              </div>
+              <button
+                onClick={() => setIsDocsModalOpen(false)}
+                className="px-3 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-sm font-bold"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+              <div className="border border-slate-200 rounded-xl p-4 bg-white">
+                <p className="text-[11px] uppercase tracking-widest font-bold text-slate-500">Data Supir</p>
+                <div className="mt-2 space-y-1">
+                  <div className="flex justify-between gap-4"><span className="text-sm font-bold">Nama</span><span className="text-sm font-semibold">{selectedDriver?.name || '-'}</span></div>
+                  <div className="flex justify-between gap-4"><span className="text-sm font-bold">ID</span><span className="text-sm font-semibold">{selectedDriver?.id ? selectedDriver.id.replace('DRV-','') : '-'}</span></div>
+                  <div className="flex justify-between gap-4"><span className="text-sm font-bold">Join Date</span><span className="text-sm font-semibold">{selectedDriver?.joinDate || 'N/A'}</span></div>
+                </div>
+              </div>
+
+              <div className="border border-slate-200 rounded-xl p-4 bg-white">
+                <p className="text-[11px] uppercase tracking-widest font-bold text-slate-500">Data Kendaraan</p>
+                <div className="mt-2 space-y-1">
+                  <div className="flex justify-between gap-4"><span className="text-sm font-bold">Brand/Model</span><span className="text-sm font-semibold">{selectedDriver?.brand_model || 'Tidak Diketahui'}</span></div>
+                  <div className="flex justify-between gap-4"><span className="text-sm font-bold">Plate Number</span><span className="text-sm font-semibold">{selectedDriver?.plate_number || 'N/A'}</span></div>
+
+                </div>
+                <p className="text-[11px] text-slate-500 mt-2">Catatan: Detail kendaraan di tampilan kiri masih hardcode saat ini.</p>
+              </div>
+            </div>
+
+            <div className="border border-slate-200 rounded-xl overflow-hidden bg-white">
+              <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] uppercase tracking-widest font-bold text-slate-500">Trip Hari Ini</p>
+                  <p className="text-sm font-bold">{todayLabel}</p>
+                </div>
+                <div className="text-sm font-extrabold text-emerald-600">{todayTrips.length} trip</div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="text-xs uppercase tracking-wider text-slate-500 bg-white">
+                    <tr>
+                      <th className="px-4 py-3">Trip ID</th>
+                      <th className="px-4 py-3">Waktu</th>
+                      <th className="px-4 py-3">Origin</th>
+                      <th className="px-4 py-3">Destination</th>
+                      <th className="px-4 py-3">Janjang</th>
+                      <th className="px-4 py-3">Weight</th>
+                      <th className="px-4 py-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {todayTrips.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="px-4 py-6 text-center text-slate-500">Belum ada trip hari ini.</td>
+                      </tr>
+                    ) : (
+                      todayTrips.map((trip, idx) => {
+                        const isPending = trip.status !== 'Selesai';
+                        return (
+                          <tr key={idx} className="border-t border-slate-200">
+                            <td className="px-4 py-3 font-bold">TRP-{idx + 1}</td>
+                            <td className="px-4 py-3 text-slate-700">{trip.date}</td>
+                            <td className="px-4 py-3 text-slate-700">{trip.origin}</td>
+                            <td className="px-4 py-3 text-slate-700">{trip.dest}</td>
+                            <td className="px-4 py-3 text-slate-700">{trip.janjang}</td>
+                            <td className="px-4 py-3 text-slate-700">{trip.weight}</td>
+                            <td className="px-4 py-3">
+                              <span
+                                className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold border ${
+                                  isPending
+                                    ? 'bg-blue-500/10 text-blue-600 border-blue-500/20'
+                                    : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                                }`}
+                              >
+                                {isPending ? 'In Progress' : 'Completed'}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-sm p-6">

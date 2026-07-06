@@ -114,6 +114,11 @@ class DriverData(BaseModel):
     joinDate: str
     history: List[TripHistory]
 
+    # Tambahan untuk UI DriverManagement
+    plate_number: Optional[str] = None
+    brand_model: Optional[str] = None
+
+
 class DriverCreateUpdate(BaseModel):
     name: str 
     username: str
@@ -404,6 +409,22 @@ async def get_drivers_history():
             driver_name = u['driver_name']
             driver_id = f"DRV-{u['id']}"
             
+            # Ambil detail kendaraan (plat & brand_model) supaya sesuai seperti TruckSidebar
+            # (Schema tabel vehicles: plate_number, brand_model)
+            vehicle_row = await conn.fetchrow(
+                """
+                SELECT 
+                    v.plate_number,
+                    COALESCE(v.brand_model, 'Tidak Diketahui') AS brand_model
+                FROM vehicles v
+                WHERE v.id = $1
+                """,
+                u['vehicle_id'],
+            )
+
+            plate_number = vehicle_row['plate_number'] if vehicle_row else 'N/A'
+            brand_model = vehicle_row['brand_model'] if vehicle_row else 'Tidak Diketahui'
+
             history_rows = await conn.fetch("""
                 SELECT 
                     'TRP-' || i.id AS "tripId",
@@ -418,23 +439,25 @@ async def get_drivers_history():
                 ORDER BY i.received_at DESC
                 LIMIT 10;
             """, u['vehicle_id'])
-            
+
             history_list = [TripHistory(**dict(h)) for h in history_rows]
-            
+
             status_supir = "Idle"
             if history_list and history_list[0].status == "Dalam Perjalanan":
                 status_supir = "Sedang Jalan"
 
-            # PERBAIKAN: Masukkan data yang baru di-SELECT ke dalam DriverData
             driver_list.append(DriverData(
                 id=driver_id,
                 name=driver_name,
-                username=u['username'],       # Kirim ke React
-                vehicle_id=u['vehicle_id'],   # Kirim ke React
-                is_active=u['is_active'],     # Kirim ke React
+                username=u['username'],
+                vehicle_id=u['vehicle_id'],
+                is_active=u['is_active'],
                 status=status_supir,
                 joinDate=u['join_date'],
-                history=history_list
+                history=history_list,
+                # FIELD tambahan untuk UI (DriverManagement aktif vehicle)
+                plate_number=plate_number,
+                brand_model=brand_model,
             ))
             
         return driver_list
