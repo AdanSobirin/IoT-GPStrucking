@@ -82,7 +82,7 @@ try {
             if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
                 
                 // KOREKSI: Mundur satu tingkat dari folder 'api' menggunakan '/../'
-                $uploadDir = __DIR__ . '/public/assets/uploads';
+                $uploadDir = __DIR__ . '/../public/assets/uploads';
                 
                 if (!file_exists($uploadDir)) {
                     // Buat folder jika belum ada
@@ -94,7 +94,7 @@ try {
 
                 if (move_uploaded_file($_FILES['photo']['tmp_name'], $target)) {
                     // Simpan path relatif untuk URL frontend
-                    $photo_path = "/assets/uploads/" . $filename;
+                    $photo_path = "assets/uploads/" . $filename;
                 } else {
                     throw new Exception("Gagal memindahkan file foto ke folder assets/uploads.");
                 }
