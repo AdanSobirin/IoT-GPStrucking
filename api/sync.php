@@ -82,7 +82,7 @@ try {
             if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
                 
                 // KOREKSI: Mundur satu tingkat dari folder 'api' menggunakan '/../'
-                $uploadDir = __DIR__ . '/../public/assets/uploads';
+                $uploadDir = __DIR__ . '/public/assets/uploads';
                 
                 if (!file_exists($uploadDir)) {
                     // Buat folder jika belum ada
