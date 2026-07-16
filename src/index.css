@@ -1,21 +1,41 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 @import "tailwindcss";
 
-/* Reset Leaflet default popup style agar konsisten dengan tema gelap */
+/* Tailwind v4 default-nya memakai prefers-color-scheme (ikut OS), bukan class .dark.
+   Baris ini mengaktifkan strategi class-based supaya tombol toggle tema (useTheme.js)
+   yang menambah/menghapus class "dark" di <html> benar-benar berpengaruh. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Reset Leaflet default popup style, mengikuti tema terang/gelap situs */
 .leaflet-popup-content-wrapper {
-  background: #1e293b !important;
-  color: #e2e8f0 !important;
-  border: 1px solid #334155 !important;
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 8px !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
   font-family: 'JetBrains Mono', monospace !important;
 }
 
 .leaflet-popup-tip {
-  background: #1e293b !important;
+  background: #ffffff !important;
 }
 
 .leaflet-popup-close-button {
+  color: #64748b !important;
+}
+
+.dark .leaflet-popup-content-wrapper {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+}
+
+.dark .leaflet-popup-tip {
+  background: #1e293b !important;
+}
+
+.dark .leaflet-popup-close-button {
   color: #94a3b8 !important;
 }
 
@@ -34,4 +54,25 @@
 /* Hapus outline bawaan Leaflet */
 .leaflet-container {
   outline: none !important;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .no-print {
+    display: none !important;
+  }
 }

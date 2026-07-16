@@ -13,13 +13,14 @@ import {
   Clock,
   Activity,
 } from "lucide-react";
+import { POLLING_INTERVAL_MS } from "../utils/pollingConfig";
 
 // ---------------------------------------------------------------------------
 // Static fleet reference. In production this would come from a /vehicles
 // endpoint, but the brief only specifies the per-vehicle status endpoint,
 // so the selectable fleet list is kept local.
 // ---------------------------------------------------------------------------
-const POLL_INTERVAL_MS = 5000;
+const POLL_INTERVAL_MS = POLLING_INTERVAL_MS;
 const FALLBACK_FLEET = [
   { id: 1, label: "Truck 01", plate: "BM 8821 PO" },
   { id: 2, label: "Truck 02", plate: "BM 4410 PO" },
@@ -284,7 +285,7 @@ export default function IoTDeviceManagement() {
     deviceStatus.status_gsm;
 
   return (
-    <div className="min-h-full w-full bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 p-6 text-slate-100">
+    <div className="min-h-full w-full bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 p-4 sm:p-6 text-slate-100">
       {/* Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -295,7 +296,7 @@ export default function IoTDeviceManagement() {
             </h1>
           </div>
           <p className="mt-1 text-xs text-slate-500">
-            Live hardware twin &mdash; palm oil fleet telemetry, polled every 5s
+            Live hardware twin &mdash; palm oil fleet telemetry, polled every {Math.round(POLL_INTERVAL_MS / 1000)}s
           </p>
         </div>
 

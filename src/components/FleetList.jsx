@@ -136,17 +136,17 @@ const result = await Swal.fire({
   if (error) return <div className="p-8 text-red-500">{error}</div>;
 
   return (
-    <div className="p-8 h-full overflow-y-auto bg-slate-50 dark:bg-slate-950 transition-colors">
-      
+    <div className="p-4 sm:p-6 lg:p-8 h-full overflow-y-auto bg-slate-50 dark:bg-slate-950 transition-colors">
+
       {/* HEADER & TOMBOL ADD */}
-      <div className="flex justify-between items-end mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6 sm:mb-8">
         <div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-gray-100">Daftar Armada Truk</h2>
           <p className="text-slate-500 dark:text-gray-400 text-sm mt-1">Monitoring status operasional dan manajemen armada.</p>
         </div>
-        <button 
+        <button
           onClick={openAddModal}
-          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold shadow-md transition-colors"
+          className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold shadow-md transition-colors self-start sm:self-auto"
         >
           <Plus size={18} /> Tambah Armada
         </button>
@@ -199,7 +199,7 @@ const result = await Swal.fire({
       {/* ─── MODAL FORM ─── */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transition-colors">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto transition-colors">
             <div className="flex justify-between items-center p-5 border-b border-slate-200 dark:border-slate-800">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                 {isEditing ? 'Edit Data Armada' : 'Tambah Armada Baru'}
