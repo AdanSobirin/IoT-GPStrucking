@@ -13,15 +13,25 @@ import os
 import uvicorn
 from passlib.context import CryptContext
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Muat file .env di root project (satu tingkat di atas folder backend/).
+# Dengan ini, nilai DATABASE_URL/CORS_ORIGINS otomatis beda antara
+# lokal dan VPS tanpa perlu mengedit file ini.
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 app = FastAPI(title="PalmTrack API", version="1.0.0")
 
 # ── CORS ────────────────────────────────────────────────────
-# Izinkan frontend React mengakses API ini
+# Izinkan frontend React mengakses API ini. Daftar origin dibaca dari
+# env var CORS_ORIGINS (dipisah koma), fallback ke localhost untuk dev.
+_cors_origins_env = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000")
+CORS_ORIGINS = [origin.strip() for origin in _cors_origins_env.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,10 +46,21 @@ DATABASE_URL = os.getenv(
 # Gunakan connection pool untuk manajemen koneksi yang lebih efisien
 db_pool = None
 
+DB_POOL_MIN = int(os.getenv("DB_POOL_MIN", "1"))
+DB_POOL_MAX = int(os.getenv("DB_POOL_MAX", "5"))
+
+# Berat Janjang Rata-rata (kg per janjang) — dipakai untuk mengestimasi berat
+# (Berat = Jumlah Janjang x BJR) karena aplikasi ini tidak terhubung ke
+# timbangan asli, hanya mencatat jumlah janjang dari input supir.
+BJR_KG = float(os.getenv("BJR_KG", "22"))
+
 @app.on_event("startup")
 async def startup_db_pool():
     global db_pool
-    db_pool = await asyncpg.create_pool(DATABASE_URL)
+    # min_size/max_size dibatasi (default kecil) supaya tidak menahan banyak
+    # koneksi idle ke PostgreSQL di VPS dengan resource terbatas. Bisa dituning
+    # lewat DB_POOL_MIN/DB_POOL_MAX di .env tanpa mengubah kode.
+    db_pool = await asyncpg.create_pool(DATABASE_URL, min_size=DB_POOL_MIN, max_size=DB_POOL_MAX)
 
 @app.on_event("shutdown")
 async def shutdown_db_pool():
@@ -144,6 +165,13 @@ class LocationResponse(BaseModel):
     type: str
     lat: float
     lng: float
+
+# Model posisi + jarak tempuh live truk (dipakai kartu "Total Distance" di DriverManagement)
+class LiveTruckLocation(BaseModel):
+    vehicle_id: int
+    lat: Optional[float] = None
+    lng: Optional[float] = None
+    traveled_distance: float = 0.0
 
 # Model data yang dikirim oleh alat IoT ke server
 class IotPayload(BaseModel):
@@ -367,7 +395,7 @@ async def get_approval_queue():
                 v.plate_number AS plate,
                 COALESCE(i.driver_name, u.driver_name, 'Supir') AS driver,
                 COALESCE(i.jumlah_janjang, 0) AS janjang,
-                'N/A' AS weight,
+                (ROUND((COALESCE(i.jumlah_janjang, 0) * $1 / 1000.0)::numeric, 2))::text || ' Ton' AS weight,
                 COALESCE(i.tph_code, 'TPH Tidak Diketahui') AS tph,
                 COALESCE(i.blok_name, '-') AS blok,
                 TO_CHAR(i.received_at, 'DD Mon YYYY, HH24:MI WIB') AS time,
@@ -375,9 +403,9 @@ async def get_approval_queue():
             FROM input_data i
             JOIN vehicles v ON v.id = i.vehicle_id
             LEFT JOIN users u ON u.vehicle_id = v.id
-            WHERE i.sync_status = 1 
+            WHERE i.sync_status = 1
             ORDER BY i.received_at ASC;
-        """)
+        """, BJR_KG)
         return [ApprovalQueueItem(**dict(r)) for r in rows]
     except Exception as e:
         print(f"Error Queue: {e}")
@@ -426,19 +454,19 @@ async def get_drivers_history():
             brand_model = vehicle_row['brand_model'] if vehicle_row else 'Tidak Diketahui'
 
             history_rows = await conn.fetch("""
-                SELECT 
+                SELECT
                     'TRP-' || i.id AS "tripId",
                     TO_CHAR(i.received_at, 'DD Mon YYYY, HH24:MI') AS date,
                     COALESCE(i.tph_code, 'Lokasi Awal') AS origin,
                     'PKS Inti' AS dest,
                     COALESCE(i.jumlah_janjang, 0) AS janjang,
-                    '0 Ton' AS weight,
+                    (ROUND((COALESCE(i.jumlah_janjang, 0) * $2 / 1000.0)::numeric, 2))::text || ' Ton' AS weight,
                     CASE WHEN i.sync_status = 2 THEN 'Selesai' ELSE 'Dalam Perjalanan' END AS status
                 FROM input_data i
                 WHERE i.vehicle_id = $1
                 ORDER BY i.received_at DESC
                 LIMIT 10;
-            """, u['vehicle_id'])
+            """, u['vehicle_id'], BJR_KG)
 
             history_list = [TripHistory(**dict(h)) for h in history_rows]
 
@@ -552,7 +580,7 @@ async def get_approval_history():
                 v.plate_number AS plate,
                 COALESCE(i.driver_name, u.driver_name, 'Supir') AS driver,
                 COALESCE(i.jumlah_janjang, 0) AS janjang,
-                'N/A' AS weight,
+                (ROUND((COALESCE(i.jumlah_janjang, 0) * $1 / 1000.0)::numeric, 2))::text || ' Ton' AS weight,
                 COALESCE(i.tph_code, 'TPH Tidak Diketahui') AS tph,
                 COALESCE(i.blok_name, '-') AS blok,
                 TO_CHAR(i.updated_at, 'DD Mon YYYY, HH24:MI WIB') AS time,
@@ -560,10 +588,10 @@ async def get_approval_history():
             FROM input_data i
             JOIN vehicles v ON v.id = i.vehicle_id
             LEFT JOIN users u ON u.vehicle_id = v.id
-            WHERE i.sync_status = 2 
+            WHERE i.sync_status = 2
             ORDER BY i.updated_at DESC
             LIMIT 50; -- Batasi 50 riwayat terakhir agar tidak berat
-        """)
+        """, BJR_KG)
         return [ApprovalQueueItem(**dict(r)) for r in rows]
     except Exception as e:
         print(f"Error History: {e}")
@@ -692,6 +720,27 @@ async def get_all_vehicles():
                 {"id": 2, "label": "Truck 02", "plate": "BM 4410 PO"},
             ]
 
+
+# ─── ENDPOINT POSISI + JARAK TEMPUH LIVE TRUK (dipakai kartu "Total Distance") ───
+@app.get("/api/iot/location", response_model=List[LiveTruckLocation])
+async def get_iot_location():
+    if not db_pool:
+        raise HTTPException(status_code=500, detail="Database pool tidak aktif")
+
+    async with db_pool.acquire() as conn:
+        try:
+            rows = await conn.fetch("""
+                SELECT
+                    vehicle_id,
+                    ST_Y(last_position) AS lat,
+                    ST_X(last_position) AS lng,
+                    COALESCE(traveled_distance_m, 0) AS traveled_distance
+                FROM live_tracking
+            """)
+            return [dict(r) for r in rows]
+        except Exception as e:
+            print(f"Error pada endpoint iot/location: {e}")
+            return []
 
 # ─── 2. ENDPOINT MONITORING STATUS HARDWARE IOT (SINKRON DENGAN DATA DARI ARDUINO) ───
 @app.get("/api/device-status/{vehicle_id}", response_model=DeviceStatusResponse)

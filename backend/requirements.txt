@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standard]
+asyncpg
+passlib[bcrypt]
+python-dotenv

@@ -29,9 +29,10 @@ try {
     $stmt->execute(['driver_id' => $driver_id]);
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Protokol dinamis untuk membuat URL foto absolut agar bisa dibaca langsung oleh Android (Glide/Picasso)
-    $server_ip = $_SERVER['SERVER_NAME'] ?? 'localhost'; 
-    $base_url = "https://kamangmakmur.online" . $server_ip . "/assets/";
+    // URL foto absolut agar bisa dibaca langsung oleh Android (Glide/Picasso).
+    // APP_BASE_URL berasal dari .env, jadi otomatis beda antara lokal dan VPS
+    // tanpa perlu mengedit file ini.
+    $base_url = rtrim(getenv('APP_BASE_URL') ?: 'http://localhost/dashboard1', '/') . '/assets/';
 
     // Modifikasi hasil data sebelum dikirim ke Android
     foreach ($results as &$row) {
